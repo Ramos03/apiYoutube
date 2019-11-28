@@ -1,0 +1,97 @@
+        // //buscando dados da 21 vigente
+        // $arItensApo21 = array(
+        //     'where' => array(
+        //         'ap_terminal' => $terminal,
+        //         'ap_ramo' => '21',
+        //         'ap_acao !=' => 'D',
+        //         'ap_cpfcgc' => $cnpj,
+        //         'current_date() between ap_dt_inicio and ap_dt_fim',
+        //     ),
+        //     'group_by' => array(
+        //         'ap_cd',
+        //     ),
+        // );
+
+                $apo21Embarcador = $this->Segurado_model->getItemsApolicesPrincipal($arItensApo21);
+
+        //Caso nao possua vigente, pega a ultima 21 que estava vigente
+        if (!$apo21Embarcador) {
+            $arItensApo21 = array(
+                'where' => array(
+                    'ap_terminal' => $terminal,
+                    'ap_ramo' => '21',
+                    'ap_acao !=' => 'D',
+                ),
+                "order" => array(
+                    "ap_cd" => "DESC",
+                ),
+                'group_by' => array(
+                    'ap_cd',
+                ),
+            );
+
+            $apo21Embarcador = $this->Segurado_model->getItemsApolicesPrincipal($arItensApo21);
+            $apo21Embarcador = $apo21Embarcador[0];
+        }
+
+        if ($this->atmsession->userdata('ses_tipo') != 'A') {
+
+            $arItens = array(
+                'where' => array(
+                    'r1.re_terminal_ref' => $this->atmsession->userdata('ses_terminal'),
+                    't1.te_terminal' => $terminal,
+                    't1.te_status' => 'S',
+                    'c1.em_cpfcgc' => $cnpj,
+                ),
+            );
+
+            $arItensApo = array(
+                'where' => array(
+                    're_terminal_ref' => $this->atmsession->userdata('ses_terminal'),
+                    'te_terminal' => $terminal,
+                    'te_status' => 'S',
+                    'em_cpfcgc' => $cnpj,
+                    'ap_acao !=' => 'D',
+                    'ap_dt_inicio >=' => $apo21Embarcador['ap_dt_inicio'],
+                    'ap_dt_fim <=' => $apo21Embarcador['ap_dt_fim'],
+                ),
+            );
+        } else {
+
+            $arItens = array(
+                'where' => array(
+                    't1.te_terminal' => $terminal,
+                    'c1.em_cpfcgc' => $cnpj,
+                ),
+            );
+
+            $arItensApo = array(
+                'where' => array(
+                    'te_terminal' => $terminal,
+                    'em_cpfcgc' => $cnpj,
+                    'ap_acao !=' => 'D',
+                    'ap_dt_inicio >=' => $apo21Embarcador['ap_dt_inicio'],
+                    'ap_dt_fim <=' => $apo21Embarcador['ap_dt_fim'],
+                ),
+            );
+        }
+
+                //Caso nao possua vigente, pega a ultima 21 que estava vigente
+        if (!$apo21Embarcador) {
+            $arItensApo21 = array(
+                'where' => array(
+                    'ap_terminal' => $terminal,
+                    'ap_ramo' => '21',
+                    'ap_acao !=' => 'D',
+                ),
+                "order" => array(
+                    "ap_cd" => "DESC",
+                ),
+                'group_by' => array(
+                    'ap_cd',
+                ),
+            );
+
+            $apo21Embarcador = $this->Segurado_model->getItemsApolicesPrincipal($arItensApo21);
+            $apo21Embarcador = $apo21Embarcador[0];
+        }
