@@ -1,4 +1,10 @@
 <?php
+    /*
+        ** Este código foi desenvolvido com base na documentação do DATA API do youtube
+        ** Programador: Vinicius De Sordi Ramos 
+        ** Data de criação 26/11/19
+    */
+
     //Verifica se o autoload do composer está na pasta
     if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
         throw new \Exception('Gentileza instalar o composer na pasta "composer require google/apiclient:~2.0" in "' . __DIR__ .'"');
@@ -12,7 +18,7 @@
         
         
         //Chave da API do youtube
-        $chave_desenvolvedor = 'AIzaSyB8yLH4Sq3VP4sZQqU4Agz361sqk-LVp5k1';
+        $chave_desenvolvedor = 'AIzaSyB8yLH4Sq3VP4sZQqU4Agz361sqk-LVp5k';
 
         
         $client = new Google_Client(); // Chama API do google
@@ -94,16 +100,64 @@
         catch (\Google_Service_Exception $e) {
             $html .= $e->getMessage();
             //echo $html . "<br/>";
+            //Converte o JSON retornado da API com erro
             $converte = json_decode($html);
+            
+            //Verifica se a variavel $converte está diferente de null
             if(isset($converte->error)){
-                echo $converte->error->message;
-                echo "<h3> Acesso não autorizado! </h3>";
-                echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                
+                //Verifica se é o erro 400 - Pedido ruim
+                if($converte->error->code == 400){
+                    echo "<h3>Ocorreu um erro!</h3>";
+                    echo "<h3>O servidor não entendeu a requisição pois está com uma sintaxe inválida! </h3>";
+                    echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                }
+
+                //Verifica se é o erro 401 - API key invalida
+                else if($converte->error->code == 401){
+                    echo "<h3>Ocorreu um erro!</h3>";
+                    echo "<h3>API Key inválida</h3>";
+                    echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                }
+                
+                // Verifica se o erro 404 - Não localizou 
+                else if($converte->error->code == 404){
+                    echo "<h3>Ocorreu um erro!</h3>";
+                    echo "<h3>O servidor não pode encontrar o recurso solicitado.</h3>";
+                    echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                }
+
+                // Verifica se o erro 500 - erro interno
+                else if($converte->error->code == 500){
+                    echo "<h3>Ocorreu um erro!</h3>";
+                    echo "<h3>Erro interno</h3>";
+                    echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                }
+
+                // Verifica o erro 503 - Serviço indisponivel
+                else if($converte->error->code == 503){
+                    echo "<h3>Ocorreu um erro!</h3>";
+                    echo "<h3>O servidor não está pronto para manipular a requisição.</h3>";
+                    echo "<button class='btn btn-primary' type='submit'><a href='index.php'> Voltar</a></button>";
+                }
+
             }
         } 
         catch (\Google_Exception $e) {
-            $html .= sprintf('<p>Ocorreu um erro de serviço: <code>%s</code></p>',
-            htmlspecialchars($e->getMessage()));
+            // Recebe a mensagem de erro da exceção
+            $html .= $e->getMessage();
+            
+            // Converte o JSON recepcionado
+            $converte = json_decode($html);
+
+            //Verifica se a variavel $converte está diferente de null
+            if(isset($converte->error)){
+                // Mostra a mensagem do código
+                echo $converte->error->message;
+
+                // mostra o código do erro
+                echo $convete->error->code;
+            }
         }
     }
 ?>
